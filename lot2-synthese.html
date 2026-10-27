@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LNPCA – Lot 2 – Synthèse planning</title>
+<style>
+:root{--vert:#1f9d55;--orange:#e98a00;--rouge:#d62839;--gris:#8a94a6;--ink:#1d2433;--bg:#f2f4f8;--card:#fff;--line:#dde2ea;--acc:#a0145a;--nav:#222a3d}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.4 "Segoe UI",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+header{background:var(--nav);color:#fff;display:flex;flex-wrap:wrap;align-items:center;gap:14px;padding:10px 20px}
+.logo{display:flex;align-items:center;height:42px;background:#fff;border-radius:4px;padding:4px 10px}
+.logo img{height:34px}.logo .fb{font-weight:800;letter-spacing:.5px;color:var(--acc)}
+header h1{font-size:19px;margin:0;flex:1;min-width:220px}
+.demo{background:#ffd24a;color:#4a3500;font-weight:700;border-radius:4px;padding:4px 10px;font-size:13px}
+.demo input{font:inherit;border:1px solid #b99200;border-radius:3px;background:#fff7d6}
+button,.btn{font:inherit;cursor:pointer;border:1px solid var(--line);background:#fff;border-radius:5px;padding:5px 11px;color:var(--ink);text-decoration:none;display:inline-block}
+button:hover,.btn:hover{border-color:var(--acc)}
+button.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+button.sm{padding:2px 8px;font-size:13px}
+nav{background:#fff;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:6px 28px;padding:8px 20px;align-items:center}
+nav .grp{display:flex;gap:4px;align-items:center}nav .grp b{font-size:12px;color:var(--gris);text-transform:uppercase;margin-right:6px}
+nav a{padding:6px 14px;border-radius:5px;text-decoration:none;color:var(--ink);font-weight:600;border:1px solid transparent}
+nav a:hover{border-color:var(--acc)}nav a.on{background:var(--acc);color:#fff}
+main{padding:16px 20px;max-width:1600px;margin:auto}
+h2{font-size:17px;margin:0 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px;margin-bottom:16px}
+.grid{display:grid;gap:14px}.g4{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}.g2{grid-template-columns:repeat(auto-fit,minmax(420px,1fr))}
+.kpi .v{font-size:34px;font-weight:700}.kpi .s{color:#556;font-size:13px}.kpi .o{font-size:12px;margin-top:4px;padding-top:4px;border-top:1px dashed var(--line);color:#667}
+.bar{height:8px;background:#e6e9ef;border-radius:4px;overflow:hidden;margin-top:6px}.bar i{display:block;height:100%}
+.vert{color:var(--vert)}.orange{color:var(--orange)}.rouge{color:var(--rouge)}.gris{color:var(--gris)}
+.bg-vert{background:var(--vert)}.bg-orange{background:var(--orange)}.bg-rouge{background:var(--rouge)}.bg-gris{background:var(--gris)}
+.pill{display:inline-block;border-radius:10px;padding:1px 9px;color:#fff;font-size:12px;font-weight:600;white-space:nowrap}
+table{border-collapse:collapse;width:100%}th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{background:#f6f7fb;font-size:13px;position:sticky;top:0;white-space:nowrap}th.sort{cursor:pointer}
+tbody tr.row:hover{background:#fbf1f6;cursor:pointer}tr.sel{background:#fbe6f0}
+.scroll{overflow-x:auto}
+input,select,textarea{font:inherit;padding:4px 6px;border:1px solid var(--line);border-radius:4px;max-width:100%}
+td input,td select{width:100%;min-width:92px}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;align-items:center}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:#445}.legend span:before{content:"";display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px;background:currentColor}
+.chart{display:flex;align-items:flex-end;gap:6px;height:190px;padding-top:18px}
+.col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;font-size:11px}
+.col .stk{width:100%;display:flex;flex-direction:column-reverse}.col .stk div{width:100%}
+.p-Direction{background:#6b4c9a}.p-Intégrateur{background:#2a7fb8}.p-OPC{background:#a0145a}.p-Planificateur{background:#e98a00}
+.split{display:grid;grid-template-columns:330px 1fr;gap:16px}
+@media(max-width:1000px){.split{grid-template-columns:1fr}}
+.ops{max-height:80vh;overflow:auto}.op{padding:8px 10px;border-bottom:1px solid var(--line);cursor:pointer}.op:hover{background:#fbf1f6}.op.sel{background:#fbe6f0;border-left:4px solid var(--acc)}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}.fields label{font-size:12px;color:#556;display:flex;flex-direction:column;gap:2px}
+.muted{color:#667;font-size:13px}.right{float:right}
+.modal{position:fixed;inset:0;background:rgba(20,25,40,.55);display:flex;align-items:center;justify-content:center;z-index:9;padding:14px}
+.modal .box{background:#fff;border-radius:8px;padding:18px;width:520px;max-width:100%;max-height:92vh;overflow:auto}
+.modal label{display:block;font-size:12px;color:#556;margin-top:8px}.modal input,.modal select,.modal textarea{width:100%}
+#toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#222a3d;color:#fff;padding:8px 16px;border-radius:6px;display:none;z-index:10}
+.hist{max-height:200px;overflow:auto;font-size:13px}.hist div{padding:3px 0;border-bottom:1px dotted var(--line)}
+.dis{opacity:.55;text-decoration:line-through}
+@media print{header button,nav{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><img src="assets/logo-sncf-reseau.svg" alt="SNCF Réseau" onerror="this.outerHTML='<span class=fb>SNCF RÉSEAU</span>'"></div>
+  <h1>LNPCA – Pilotage des missions test OPC / planification / intégration</h1>
+  <div class="demo">DONNÉES DE DÉMONSTRATION – actualisation fictive : <input type="date" id="refDate" data-act-change="ref"></div>
+  <button id="btnReset" data-act="reset">↺ Réinitialiser</button>
+</header>
+<nav id="nav"></nav>
+<main id="app"></main>
+<div id="toast"></div>
+
+<script>
+/* ==========================================================================
+   JEU DE DONNÉES DE DÉMONSTRATION – LNPCA (100 % fictif)
+   --------------------------------------------------------------------------
+   Modifier ce fichier puis relancer :  python build.py
+   (ou éditer directement le bloc DEMO_DATA dans chaque fichier HTML généré,
+   puis cliquer sur « Réinitialiser » pour recharger les données d'origine).
+
+   Dates au format ISO (AAAA-MM-JJ) ; affichées en JJ/MM/AAAA.
+   Champs non renseignés d'une opération => valeurs par défaut (voir normOp du gabarit).
+   liv = [livrables échus, remis à temps, livrables contrôlés, livrables conformes]
+   v1  = "accepté" | "reprise" | "en attente" | "sans objet"
+   statut = "à produire" | "V1 remise" | "validé" | "reprise"
+   phase  = "AVP" | "PRO" | "PRO-REA" | "REA"
+   type   = "B" | "C"
+   ATTENTION : libellés d'opérations et MOA à aligner sur les CCTP des missions test.
+   ========================================================================== */
+const DEMO_DATA = {
+  dateActualisation: "2026-09-15",          // date fictive d'actualisation
+  objectifs: { v1: 90, delais: 100, conformite: 90 },   // cibles d'offre (≠ résultats simulés)
+  lots: {
+    1: {
+      titre: "Lot 1 – Bouches-du-Rhône (13)",
+      notification: "2026-08-03",
+      ops: [
+        // ---- Bloc A
+        { id: "L1-A1", nom: "Libération Abeilles", dept: "13", bloc: "A", phase: "PRO-REA", type: "C", opc: "OPC référent / CP", planif: "Planificatrice A+C", version: "V2", dateVersion: "2026-08-28", statut: "validé", v1: "reprise", maj: "2026-09-10", echeance: "2026-10-09", echeanceLib: "Remise planning REA", avancement: 72, liv: [8, 7, 8, 7],
+          moaCoord: "SNCF Réseau (à confirmer CCTP)", moaContrib: "Gares & Connexions (à confirmer)",
+          actions: [
+            { desc: "Consolider le planning REA avec les entreprises", resp: "OPC référent / CP", ech: "2026-09-25", prio: "Haute", statut: "en cours" },
+            { desc: "Recaler les phasages travaux de nuit", resp: "Planificatrice A+C", ech: "2026-09-10", prio: "Moyenne", statut: "ouverte" }
+          ],
+          ecarts: [
+            { lib: "Livraison zone sud", prevu: "2026-07-01", realise: "2026-07-24", cause: "Libération foncière tardive", impact: "+3 semaines sur chemin critique", decision: "Réorganisation des tâches en parallèle", statut: "ouvert" }
+          ],
+          jalons: [ { lib: "Fin PRO", date: "2026-06-30", fait: true }, { lib: "Planning REA V1", date: "2026-10-09", fait: false }, { lib: "Démarrage REA", date: "2027-01-15", fait: false } ],
+          reunions: [ { date: "2026-09-02", titre: "Réunion de suivi planning – Abeilles", cr: "CR_suivi_planning_Abeilles_2026-09-02.pdf", crStatut: "diffusé" }, { date: "2026-09-16", titre: "Coordination LNPCA-HPMV", cr: "", crStatut: "attendu" } ] },
+        { id: "L1-A2", nom: "Bloc Est", dept: "13", bloc: "A", phase: "PRO", type: "B", opc: "OPC adjoint A", planif: "Planificatrice A+C", version: "V1", dateVersion: "2026-09-04", statut: "V1 remise", v1: "en attente", maj: "2026-09-08", echeance: "2026-09-30", echeanceLib: "Retour sur V1", avancement: 55, liv: [5, 5, 4, 4],
+          actions: [ { desc: "Intégrer les remarques MOE sur la V1", resp: "OPC adjoint A", ech: "2026-09-22", prio: "Haute", statut: "en cours" } ] },
+        { id: "L1-A3", nom: "Gare souterraine de Marseille", dept: "13", bloc: "A", phase: "AVP", type: "B", opc: "OPC référent / CP", planif: "Planificatrice A+C", version: "V1", dateVersion: "2026-07-20", statut: "reprise", v1: "reprise", maj: "2026-09-01", echeance: "2026-09-12", echeanceLib: "Remise V2 après reprise", avancement: 40, liv: [6, 4, 5, 3],
+          ecarts: [ { lib: "Planning V1 non conforme (interfaces G&C)", prevu: "2026-07-20", realise: "2026-07-20", cause: "Interfaces gares incomplètes", impact: "Reprise complète du planning", decision: "Atelier de reprise avec G&C", statut: "ouvert" } ] },
+        { id: "L1-A4", nom: "Accès métro – Liaison métro", dept: "13", bloc: "A", phase: "AVP", type: "C", opc: "OPC adjoint A", planif: "Planificatrice A+C", version: "—", dateVersion: "", statut: "à produire", v1: "sans objet", maj: "2026-08-20", echeance: "2026-10-30", echeanceLib: "Remise V1", avancement: 10, liv: [1, 1, 1, 1],
+          interfaces: [ { org: "Autorité de transport métro (à confirmer)", contact: "À renseigner" }, { org: "Réseau", contact: "À renseigner" } ] },
+        // ---- Bloc B
+        { id: "L1-B1", nom: "Corridor Ouest", dept: "13", bloc: "B", phase: "AVP", type: "B", opc: "OPC référent / CP (cadrage B)", planif: "Planificatrice B", version: "V1", dateVersion: "2026-09-09", statut: "V1 remise", v1: "en attente", maj: "2026-09-09", echeance: "2026-09-28", echeanceLib: "Validation V1", avancement: 35, liv: [3, 3, 2, 2] },
+        { id: "L1-B2", nom: "Plateau Ouest", dept: "13", bloc: "B", phase: "AVP", type: "B", opc: "OPC référent / CP (cadrage B)", planif: "Planificatrice B", version: "—", dateVersion: "", statut: "à produire", v1: "sans objet", maj: "2026-08-14", echeance: "2026-09-18", echeanceLib: "Remise V1", avancement: 15, liv: [2, 1, 1, 1] },
+        { id: "L1-B3", nom: "Galerie de Crimée", dept: "13", bloc: "B", phase: "PRO", type: "C", opc: "OPC bloc B (montée en charge)", planif: "Planificatrice B", version: "V1", dateVersion: "2026-08-12", statut: "validé", v1: "accepté", maj: "2026-08-25", echeance: "2026-11-20", echeanceLib: "Mise à jour trimestrielle", avancement: 62, liv: [4, 4, 4, 4] },
+        // ---- Bloc C
+        { id: "L1-C1", nom: "Raccordement Marseille Nord", dept: "13", bloc: "C", phase: "AVP", type: "C", opc: "OPC référent / CP", planif: "Planificatrice A+C", version: "V1", dateVersion: "2026-08-05", statut: "validé", v1: "accepté", maj: "2026-08-18", echeance: "2026-12-04", echeanceLib: "Passage en PRO", avancement: 48, liv: [5, 5, 5, 5] },
+        { id: "L1-C2", nom: "Tunnels de Marseille", dept: "13", bloc: "C", phase: "AVP", type: "B", opc: "OPC référent / CP", planif: "Planificatrice A+C", version: "V1", dateVersion: "2026-09-01", statut: "V1 remise", v1: "en attente", maj: "2026-09-05", echeance: "2026-09-24", echeanceLib: "Retour sur V1", avancement: 38, liv: [4, 3, 3, 3] },
+        { id: "L1-C3", nom: "Doublement tunnel Saint-Louis", dept: "13", bloc: "C", phase: "PRO", type: "B", opc: "OPC référent / CP", planif: "Planificatrice A+C", version: "V2", dateVersion: "2026-07-30", statut: "validé", v1: "reprise", maj: "2026-08-10", echeance: "2026-10-15", echeanceLib: "Revue d'intégration", avancement: 66, liv: [7, 6, 7, 6] },
+        { id: "L1-C4", nom: "Raccordement Marseille Parette", dept: "13", bloc: "C", phase: "AVP", type: "C", opc: "OPC référent / CP", planif: "Planificatrice A+C", version: "—", dateVersion: "", statut: "à produire", v1: "sans objet", maj: "2026-08-01", echeance: "2026-11-06", echeanceLib: "Remise V1", avancement: 5, liv: [0, 0, 0, 0] },
+        { id: "L1-C5", nom: "Blancarde Étape 2", dept: "13", bloc: "C", phase: "PRO", type: "C", opc: "OPC référent / CP", planif: "Planificatrice A+C", version: "V1", dateVersion: "2026-08-20", statut: "validé", v1: "accepté", maj: "2026-09-03", echeance: "2026-10-23", echeanceLib: "Mise à jour planning", avancement: 58, liv: [6, 6, 6, 6] },
+        { id: "L1-C6", nom: "ITE Marseille", dept: "13", bloc: "C", phase: "REA", type: "C", opc: "OPC référent / CP", planif: "Planificatrice A+C", version: "V3", dateVersion: "2026-09-07", statut: "validé", v1: "accepté", maj: "2026-09-07", echeance: "2026-09-21", echeanceLib: "Point d'avancement REA", avancement: 81, liv: [10, 10, 10, 9] }
+      ],
+      equipe: [
+        { id: "t1", profil: "Direction", lib: "Direction de mission (pilotage, qualité, arbitrages)", perim: "Tous blocs", debut: "2026-01", fin: "2029-12", etp: 0.3, actif: true },
+        { id: "t2", profil: "Intégrateur", lib: "Intégrateur chef de projet (consolidation, gouvernance)", perim: "Multi-opérations", debut: "2026-01", fin: "2029-12", etp: 0.6, actif: true },
+        { id: "t3", profil: "OPC", lib: "OPC référent / chef de projet (coordination A, cadrage initial B)", perim: "Bloc A + cadrage B", debut: "2026-01", fin: "2029-12", etp: 1.0, actif: true },
+        { id: "t4", profil: "OPC", lib: "OPC confirmé adjoint", perim: "Bloc A", debut: "2026-01", fin: "2029-12", etp: 1.0, actif: true },
+        { id: "t5", profil: "OPC", lib: "OPC bloc B (montée en charge différée)", perim: "Bloc B", debut: "2026-09", fin: "2029-12", etp: 0.5, actif: true },
+        { id: "t6", profil: "OPC", lib: "Renfort OPC bloc C (à partir de 2028)", perim: "Bloc C", debut: "2028-01", fin: "2029-12", etp: 1.0, actif: true },
+        { id: "t7", profil: "Planificateur", lib: "Planificatrice blocs A + C", perim: "Blocs A + C", debut: "2026-01", fin: "2029-12", etp: 1.0, actif: true },
+        { id: "t8", profil: "Planificateur", lib: "Planificatrice bloc B", perim: "Bloc B", debut: "2026-01", fin: "2029-12", etp: 0.8, actif: true },
+        { id: "t9", profil: "Planificateur", lib: "Renfort planificateur bloc B (activable selon charge)", perim: "Bloc B", debut: "2027-06", fin: "2028-12", etp: 0.5, actif: false }
+      ],
+      jalons: [
+        { lib: "Réunion de lancement planning – Lot 1", type: "Réunion de lancement", date: "2026-08-10", statut: "fait", pilote: "OPC référent / CP" },
+        { lib: "Rapport d'étonnement (≤ 2 mois après notification)", type: "Rapport d'étonnement", date: "2026-10-02", statut: "en cours", pilote: "Direction de mission" },
+        { lib: "Coordination LNPCA-HPMV n°3", type: "Coordination LNPCA-HPMV", date: "2026-09-16", statut: "à venir", pilote: "Intégrateur CP" },
+        { lib: "Réunion de suivi planning – bloc A", type: "Suivi planning", date: "2026-09-22", statut: "à venir", pilote: "OPC adjoint A" },
+        { lib: "Remise V1 – Plateau Ouest", type: "Remise", date: "2026-09-18", statut: "à venir", pilote: "Planificatrice B" },
+        { lib: "Revue d'intégration n°2", type: "Revue d'intégration", date: "2026-10-15", statut: "à venir", pilote: "Intégrateur CP" },
+        { lib: "Compte rendu COPIL attendu", type: "Compte rendu", date: "2026-10-21", statut: "à venir", pilote: "Direction de mission" },
+        { lib: "COPIL Lot 1", type: "COPIL", date: "2026-10-28", statut: "à venir", pilote: "Direction de mission" }
+      ]
+    },
+    2: {
+      titre: "Lot 2 – Var (83) et Alpes-Maritimes (06)",
+      notification: "2026-08-03",
+      ops: [
+        // ---- Var (83)
+        { id: "L2-V1", nom: "Saint-Cyr", dept: "83", bloc: "Var", phase: "AVP", type: "B", opc: "OPC sénior Var", planif: "Planificatrice sénior Var", version: "V1", dateVersion: "2026-08-31", statut: "validé", v1: "accepté", maj: "2026-09-09", echeance: "2026-10-16", echeanceLib: "Passage en PRO", avancement: 52, liv: [5, 5, 5, 5],
+          moaCoord: "SNCF Réseau (à confirmer CCTP)", moaContrib: "À renseigner (CCTP)",
+          actions: [ { desc: "Valider les hypothèses de phasage avec l'exploitation", resp: "OPC sénior Var", ech: "2026-09-30", prio: "Moyenne", statut: "en cours" } ] },
+        { id: "L2-V2", nom: "Toulon", dept: "83", bloc: "Var", phase: "PRO", type: "B", opc: "OPC sénior Var", planif: "Planificatrice sénior Var", version: "V2", dateVersion: "2026-09-02", statut: "V1 remise", v1: "reprise", maj: "2026-09-02", echeance: "2026-09-25", echeanceLib: "Validation V2", avancement: 60, liv: [8, 7, 8, 6],
+          ecarts: [ { lib: "Réserves sur la V1 (jalons travaux)", prevu: "2026-08-15", realise: "2026-08-29", cause: "Hypothèses d'interface incomplètes", impact: "V2 nécessaire", decision: "Reprise des jalons interfaces", statut: "traité" } ] },
+        { id: "L2-V3", nom: "La Pauline", dept: "83", bloc: "Var", phase: "AVP", type: "C", opc: "OPC sénior Var", planif: "Planificatrice sénior Var", version: "V1", dateVersion: "2026-08-17", statut: "validé", v1: "accepté", maj: "2026-08-26", echeance: "2026-11-13", echeanceLib: "Mise à jour planning", avancement: 45, liv: [3, 3, 3, 3] },
+        { id: "L2-V4", nom: "Carnoules", dept: "83", bloc: "Var", phase: "AVP", type: "C", opc: "OPC sénior Var", planif: "Planificatrice sénior Var", version: "—", dateVersion: "", statut: "à produire", v1: "sans objet", maj: "2026-08-12", echeance: "2026-09-14", echeanceLib: "Remise V1", avancement: 12, liv: [1, 0, 0, 0] },
+        { id: "L2-V5", nom: "Traversées de voies piétonnes (TVP)", dept: "83", bloc: "Var", phase: "PRO-REA", type: "C", opc: "OPC sénior Var", planif: "Planificatrice sénior Var", version: "V2", dateVersion: "2026-08-24", statut: "validé", v1: "accepté", maj: "2026-09-04", echeance: "2026-10-02", echeanceLib: "Revue REA", avancement: 70, liv: [6, 6, 6, 6] },
+        { id: "L2-V6", nom: "Les Arcs", dept: "83", bloc: "Var", phase: "REA", type: "B", opc: "OPC sénior Var", planif: "Planificatrice sénior Var", version: "V3", dateVersion: "2026-09-08", statut: "validé", v1: "accepté", maj: "2026-09-08", echeance: "2026-09-29", echeanceLib: "Point d'avancement REA", avancement: 84, liv: [9, 9, 9, 9] },
+        // ---- Alpes-Maritimes (06)
+        { id: "L2-A1", nom: "Cannes Marchandises", dept: "06", bloc: "Alpes-Maritimes", phase: "PRO", type: "B", opc: "OPC sénior Alpes-Maritimes", planif: "Planificateur expérimenté AM", version: "V1", dateVersion: "2026-08-27", statut: "V1 remise", v1: "en attente", maj: "2026-08-27", echeance: "2026-09-20", echeanceLib: "Retour sur V1", avancement: 50, liv: [4, 4, 3, 3],
+          actions: [ { desc: "Planifier l'atelier phasage avec G&C", resp: "OPC sénior Alpes-Maritimes", ech: "2026-09-18", prio: "Haute", statut: "ouverte" } ] },
+        { id: "L2-A2", nom: "Bifurcation Cannes–Grasse", dept: "06", bloc: "Alpes-Maritimes", phase: "AVP", type: "B", opc: "OPC sénior Alpes-Maritimes", planif: "Planificateur expérimenté AM", version: "V1", dateVersion: "2026-07-24", statut: "reprise", v1: "reprise", maj: "2026-09-03", echeance: "2026-09-11", echeanceLib: "Remise V2", avancement: 33, liv: [5, 3, 4, 2],
+          ecarts: [ { lib: "V1 non conforme au référentiel", prevu: "2026-07-24", realise: "2026-07-24", cause: "Référentiel planning mal appliqué", impact: "Reprise du planning", decision: "Rappel du référentiel + relecture croisée", statut: "ouvert" } ] },
+        { id: "L2-A3", nom: "Cannes Centre", dept: "06", bloc: "Alpes-Maritimes", phase: "AVP", type: "C", opc: "OPC sénior Alpes-Maritimes", planif: "Planificateur expérimenté AM", version: "V1", dateVersion: "2026-08-19", statut: "validé", v1: "accepté", maj: "2026-08-30", echeance: "2026-11-27", echeanceLib: "Mise à jour planning", avancement: 42, liv: [3, 3, 3, 3] },
+        { id: "L2-A4", nom: "Nice Ville", dept: "06", bloc: "Alpes-Maritimes", phase: "PRO", type: "B", opc: "OPC sénior Alpes-Maritimes", planif: "Planificateur expérimenté AM", version: "V2", dateVersion: "2026-09-01", statut: "validé", v1: "accepté", maj: "2026-09-05", echeance: "2026-10-09", echeanceLib: "Revue d'intégration", avancement: 64, liv: [7, 7, 7, 7] },
+        { id: "L2-A5", nom: "Nice Saint-Roch", dept: "06", bloc: "Alpes-Maritimes", phase: "AVP", type: "C", opc: "OPC sénior Alpes-Maritimes", planif: "Planificateur expérimenté AM", version: "—", dateVersion: "", statut: "à produire", v1: "sans objet", maj: "2026-08-05", echeance: "2026-10-23", echeanceLib: "Remise V1", avancement: 8, liv: [0, 0, 0, 0] },
+        { id: "L2-A6", nom: "Nice Aéroport", dept: "06", bloc: "Alpes-Maritimes", phase: "PRO", type: "C", opc: "OPC sénior Alpes-Maritimes", planif: "Planificateur expérimenté AM", version: "V1", dateVersion: "2026-08-21", statut: "validé", v1: "accepté", maj: "2026-09-01", echeance: "2026-10-30", echeanceLib: "Mise à jour planning", avancement: 57, liv: [4, 4, 4, 4] },
+        { id: "L2-A7", nom: "IFTE/CSS 06", dept: "06", bloc: "Alpes-Maritimes", phase: "REA", type: "C", opc: "OPC sénior Alpes-Maritimes", planif: "Planificateur expérimenté AM", version: "V2", dateVersion: "2026-09-10", statut: "V1 remise", v1: "en attente", maj: "2026-09-10", echeance: "2026-09-26", echeanceLib: "Validation V2", avancement: 77, liv: [6, 5, 5, 5] }
+      ],
+      equipe: [
+        { id: "u1", profil: "Direction", lib: "Directeur de mission également intégrateur", perim: "Lot 2", debut: "2026-01", fin: "2029-12", etp: 0.8, actif: true },
+        { id: "u2", profil: "Intégrateur", lib: "Relais intégration", perim: "Lot 2", debut: "2026-01", fin: "2029-12", etp: 0.4, actif: true },
+        { id: "u3", profil: "Planificateur", lib: "Planificatrice sénior pôle Var", perim: "Var (83)", debut: "2026-01", fin: "2029-12", etp: 1.0, actif: true },
+        { id: "u4", profil: "Planificateur", lib: "Planificateur expérimenté pôle Alpes-Maritimes", perim: "Alpes-Maritimes (06)", debut: "2026-01", fin: "2029-12", etp: 1.0, actif: true },
+        { id: "u5", profil: "OPC", lib: "OPC sénior pôle Var", perim: "Var (83)", debut: "2026-01", fin: "2029-12", etp: 1.0, actif: true },
+        { id: "u6", profil: "OPC", lib: "OPC sénior pôle Alpes-Maritimes", perim: "Alpes-Maritimes (06)", debut: "2026-01", fin: "2029-12", etp: 1.0, actif: true },
+        { id: "u7", profil: "OPC", lib: "Renfort OPC confirmé (prévu en 2029)", perim: "À affecter", debut: "2029-01", fin: "2029-12", etp: 1.0, actif: true }
+      ],
+      jalons: [
+        { lib: "Réunion de lancement planning – Lot 2", type: "Réunion de lancement", date: "2026-08-11", statut: "fait", pilote: "Directeur de mission" },
+        { lib: "Rapport d'étonnement (≤ 2 mois après notification)", type: "Rapport d'étonnement", date: "2026-10-02", statut: "en cours", pilote: "Directeur de mission" },
+        { lib: "Coordination LNPCA-HPMV n°3", type: "Coordination LNPCA-HPMV", date: "2026-09-17", statut: "à venir", pilote: "Relais intégration" },
+        { lib: "Réunion de suivi planning – pôle Var", type: "Suivi planning", date: "2026-09-23", statut: "à venir", pilote: "OPC sénior Var" },
+        { lib: "Remise V1 – Carnoules", type: "Remise", date: "2026-09-14", statut: "retard", pilote: "Planificatrice sénior Var" },
+        { lib: "Revue d'intégration n°2", type: "Revue d'intégration", date: "2026-10-09", statut: "à venir", pilote: "Relais intégration" },
+        { lib: "Compte rendu COPIL attendu", type: "Compte rendu", date: "2026-10-22", statut: "à venir", pilote: "Directeur de mission" },
+        { lib: "COPIL Lot 2", type: "COPIL", date: "2026-10-29", statut: "à venir", pilote: "Directeur de mission" }
+      ]
+    }
+  }
+};
+
+const CFG = { lot: 2, vue: "synthese" };
+
+/* ======================= État & persistance ======================= */
+const KEY = "lnpca-proto-v1";
+let S;
+const clone = x => JSON.parse(JSON.stringify(x));
+const uid = () => "x" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+function normOp(o) {
+  const d = {
+    moaCoord: "À renseigner (CCTP)", moaContrib: "", responsable: o.opc,
+    interfaces: [{ org: "SNCF Réseau", contact: "À renseigner" }, { org: "Gares & Connexions", contact: "À renseigner" }, { org: "HPMV", contact: "À renseigner" }],
+    actions: [{ desc: "Transmettre le planning de la phase en cours", resp: o.opc, ech: o.echeance, prio: "Moyenne", statut: "ouverte" }],
+    ecarts: [], jalons: [{ lib: "Fin de phase " + o.phase, date: o.echeance, fait: false }],
+    reunions: [{ date: o.maj, titre: "Réunion de suivi planning", cr: "", crStatut: "attendu" }],
+    historique: [{ d: DEMO_DATA.dateActualisation, t: "Chargement des données de démonstration" }]
+  };
+  const r = Object.assign(d, clone(o));
+  r.livr = { echus: o.liv[0], aTemps: o.liv[1], controles: o.liv[2], conformes: o.liv[3] }; delete r.liv;
+  [r.actions, r.ecarts, r.jalons, r.reunions].forEach(l => l.forEach(x => x.id = x.id || uid()));
+  return r;
+}
+function buildInitial() {
+  const s = { ref: DEMO_DATA.dateActualisation, obj: clone(DEMO_DATA.objectifs), year: 2026, sel: {}, lots: {} };
+  for (const k in DEMO_DATA.lots) {
+    const l = clone(DEMO_DATA.lots[k]);
+    l.ops = l.ops.map(normOp);
+    l.jalons.forEach(j => j.id = uid());
+    s.lots[k] = l; s.sel[k] = l.ops[0].id;
+  }
+  return s;
+}
+function loadState() {
+  let raw = null;
+  try { raw = localStorage.getItem(KEY); } catch (e) {}
+  if (!raw && window.name.indexOf("LNPCA:") === 0) raw = window.name.slice(6);
+  if (raw) { try { S = JSON.parse(raw); return; } catch (e) {} }
+  S = buildInitial();
+}
+function save() {
+  const j = JSON.stringify(S);
+  try { localStorage.setItem(KEY, j); } catch (e) {}
+  window.name = "LNPCA:" + j;
+}
+
+/* ======================= Utilitaires ======================= */
+const h = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const lot = () => S.lots[CFG.lot];
+const opById = id => lot().ops.find(o => o.id === id);
+const fmt = iso => iso ? iso.slice(8, 10) + "/" + iso.slice(5, 7) + "/" + iso.slice(0, 4) : "—";
+const days = (a, b) => Math.round((new Date(b) - new Date(a)) / 864e5);
+const pct = (n, d) => d > 0 ? Math.round(1000 * n / d) / 10 : null;
+const fp = p => p == null ? "n/d" : String(p).replace(".", ",") + " %";
+const MOIS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+const STATUTS = ["à produire", "V1 remise", "validé", "reprise"], PHASES = ["AVP", "PRO", "PRO-REA", "REA"], V1S = ["sans objet", "en attente", "accepté", "reprise"];
+const STATUT_COL = { "à produire": "gris", "V1 remise": "orange", "validé": "vert", "reprise": "rouge" };
+const JAL_COL = { "à venir": "gris", "en cours": "orange", "fait": "vert", "retard": "rouge" };
+const pill = (txt, c) => `<span class="pill bg-${c}">${h(txt)}</span>`;
+const opt = (list, cur) => list.map(x => `<option${x === cur ? " selected" : ""}>${h(x)}</option>`).join("");
+const RANK = { vert: 0, gris: 1, orange: 2, rouge: 3 };
+
+function toast(m) { const t = document.getElementById("toast"); t.textContent = m; t.style.display = "block"; clearTimeout(t._t); t._t = setTimeout(() => t.style.display = "none", 2600); }
+
+function alerte(o) {
+  const res = [];
+  if (o.statut === "reprise") res.push({ c: "rouge", t: "Reprise demandée" });
+  if (o.statut !== "validé" && o.echeance) {
+    const d = days(S.ref, o.echeance);
+    if (d < 0) res.push({ c: "rouge", t: "Échéance dépassée de " + (-d) + " j" });
+    else if (d <= 14) res.push({ c: "orange", t: "Échéance dans " + d + " j" });
+  }
+  const ne = o.ecarts.filter(e => e.statut === "ouvert").length;
+  if (ne) res.push({ c: "orange", t: ne + " écart(s) ouvert(s)" });
+  const nr = o.actions.filter(a => a.statut !== "clôturée" && a.ech < S.ref).length;
+  if (nr) res.push({ c: "orange", t: nr + " action(s) en retard" });
+  if (!res.length) return { c: o.statut === "validé" ? "vert" : "gris", t: o.statut === "validé" ? "RAS" : "À venir" };
+  res.sort((a, b) => RANK[b.c] - RANK[a.c]);
+  return { c: res[0].c, t: res.map(r => r.t).join(" · ") };
+}
+
+function kpis(ops) {
+  const r = ops.filter(o => o.v1 === "accepté" || o.v1 === "reprise");
+  const sum = f => ops.reduce((a, o) => a + o.livr[f], 0);
+  return {
+    v1: { n: r.filter(o => o.v1 === "accepté").length, d: r.length },
+    delais: { n: sum("aTemps"), d: sum("echus") },
+    conf: { n: sum("conformes"), d: sum("controles") }
+  };
+}
+
+/* ======================= Modification des données ======================= */
+const LABELS = { phase: "Phase", type: "Type de planning", version: "Version", dateVersion: "Date de version", statut: "Statut", avancement: "Avancement", echeance: "Échéance", echeanceLib: "Libellé échéance", responsable: "Responsable", opc: "OPC", planif: "Planificateur", moaCoord: "MOA coordinatrice", moaContrib: "MOA contributrice", dept: "Département", bloc: "Bloc/pôle", v1: "Conformité V1", "livr.echus": "Livrables échus", "livr.aTemps": "Livrables remis à temps", "livr.controles": "Livrables contrôlés", "livr.conformes": "Livrables conformes" };
+const hist = (o, t) => o.historique.unshift({ d: S.ref, t });
+
+function setField(id, f, v, silent) {
+  const o = opById(id); if (!o) return;
+  let old, tgt = o, key = f;
+  if (f.indexOf("livr.") === 0) { tgt = o.livr; key = f.slice(5); }
+  old = tgt[key];
+  if (typeof old === "number") {
+    v = Math.max(0, Number(v) || 0);
+    if (f === "avancement") v = Math.min(100, v);
+    if (f === "livr.aTemps") v = Math.min(v, o.livr.echus);
+    if (f === "livr.conformes") v = Math.min(v, o.livr.controles);
+    if (f === "livr.echus") { o.livr.aTemps = Math.min(o.livr.aTemps, v); }
+    if (f === "livr.controles") { o.livr.conformes = Math.min(o.livr.conformes, v); }
+  }
+  if (old === v) return;
+  tgt[key] = v;
+  if (f === "statut") {
+    if (v === "V1 remise" && (o.v1 === "sans objet")) o.v1 = "en attente";
+    else if (v === "validé" && o.v1 === "en attente") o.v1 = "accepté";
+    else if (v === "reprise" && o.v1 === "en attente") o.v1 = "reprise";
+    else if (v === "à produire") o.v1 = "sans objet";
+  }
+  o.maj = S.ref;
+  hist(o, `${LABELS[f] || f} : ${old === "" ? "—" : old} → ${v === "" ? "—" : v}`);
+  save(); render();
+  if (f === "statut") toast("Statut mis à jour – indicateurs recalculés (conformité V1 : " + o.v1 + ")");
+}
+
+/* ======================= Modales / formulaires ======================= */
+function modal(html) {
+  closeModal();
+  const m = document.createElement("div"); m.className = "modal"; m.id = "modal";
+  m.innerHTML = `<div class="box">${html}</div>`;
+  m.addEventListener("mousedown", e => { if (e.target === m) closeModal(); });
+  document.body.appendChild(m); return m;
+}
+function closeModal() { const m = document.getElementById("modal"); if (m) m.remove(); }
+function form(title, fields, cb, extra) {
+  const m = modal(`<h2>${h(title)}</h2><form>` + fields.map(f => {
+    const v = f.v == null ? "" : f.v;
+    let inp;
+    if (f.t === "select") inp = `<select name="${f.k}">${opt(f.o, v)}</select>`;
+    else if (f.t === "area") inp = `<textarea name="${f.k}" rows="2">${h(v)}</textarea>`;
+    else inp = `<input name="${f.k}" type="${f.t || "text"}" value="${h(v)}"${f.list ? ` list="${f.list}"` : ""}>`;
+    return `<label>${h(f.l)}${inp}</label>`;
+  }).join("") + `<p style="text-align:right"><button type="button" data-act="closeModal">Annuler</button> <button class="pri">Enregistrer</button></p></form>`);
+  m.querySelector("form").addEventListener("submit", e => {
+    e.preventDefault();
+    const r = {}; fields.forEach(f => r[f.k] = e.target.elements[f.k].value);
+    cb(r); closeModal();
+  });
+  const first = m.querySelector("input,select,textarea"); if (first) first.focus();
+}
+function fakeLink(label) {
+  modal(`<h2>Lien de démonstration</h2><p><b>${h(label || "Document")}</b></p><p>Lien à connecter : fichier fictif, non disponible dans ce prototype (aucun accès GED ni réseau).</p><p style="text-align:right"><button class="pri" data-act="closeModal">Fermer</button></p>`);
+}
+
+/* ======================= Navigation / en-tête ======================= */
+function renderNav() {
+  const f = (l, v) => `lot${l}-${v}.html`;
+  const a = (href, txt, on) => `<a href="${href}" class="${on ? "on" : ""}">${txt}</a>`;
+  document.getElementById("nav").innerHTML =
+    `<div class="grp"><b>Lot</b>${a(f(1, CFG.vue), "Lot 1 – Bouches-du-Rhône", CFG.lot === 1)}${a(f(2, CFG.vue), "Lot 2 – Var / Alpes-Maritimes", CFG.lot === 2)}</div>` +
+    `<div class="grp"><b>Vue</b>${a(f(CFG.lot, "synthese"), "Synthèse planning", CFG.vue === "synthese")}${a(f(CFG.lot, "suivi"), "Suivi des opérations", CFG.vue === "suivi")}</div>`;
+  document.getElementById("refDate").value = S.ref;
+}
+
+/* ======================= Vue : Synthèse planning ======================= */
+function kpiCard(titre, k, cible, formule, objectifTxt) {
+  const p = pct(k.n, k.d);
+  const c = p == null ? "gris" : p >= cible ? "vert" : p >= cible - 10 ? "orange" : "rouge";
+  return `<div class="card kpi"><div class="muted">${titre}</div><div class="v ${c}">${fp(p)}</div>
+    <div class="s">${k.n} / ${k.d} — ${formule}</div><div class="bar"><i class="bg-${c}" style="width:${p || 0}%"></i></div>
+    <div class="o">Objectif d'offre : ${objectifTxt} (résultat simulé, période : depuis notification au ${fmt(lot().notification)})</div></div>`;
+}
+
+function viewSynthese() {
+  const L = lot(), ui = S.ui = S.ui || {};
+  const F = ui.f = ui.f || {}, k = kpis(L.ops);
+  const retards = L.ops.filter(o => alerte(o).c === "rouge").length;
+  const av = Math.round(L.ops.reduce((a, o) => a + o.avancement, 0) / L.ops.length);
+  const uniq = f => [...new Set(L.ops.map(o => o[f]))].sort();
+  let rows = L.ops.filter(o => (!F.dept || o.dept === F.dept) && (!F.phase || o.phase === F.phase) && (!F.statut || o.statut === F.statut) && (!F.resp || o.responsable === F.resp));
+  const so = ui.sort || { k: "nom", d: 1 };
+  const val = o => so.k === "alerte" ? RANK[alerte(o).c] : so.k === "conf" ? o.v1 : o[so.k];
+  rows.sort((a, b) => (val(a) > val(b) ? 1 : val(a) < val(b) ? -1 : 0) * so.d);
+  const th = (key, txt) => `<th class="sort" data-act="sort" data-k="${key}">${txt}${so.k === key ? (so.d > 0 ? " ▲" : " ▼") : ""}</th>`;
+  const sel = (id, label, list) => `<select data-ui="${id}"><option value="">${label}</option>${list.map(x => `<option${F[id] === x ? " selected" : ""}>${h(x)}</option>`).join("")}</select>`;
+  const v1c = { "accepté": "vert", "reprise": "rouge", "en attente": "orange", "sans objet": "gris" };
+
+  const table = rows.map(o => {
+    const a = alerte(o);
+    return `<tr class="row" data-act="open" data-id="${o.id}">
+      <td><b>${h(o.nom)}</b><div class="muted">${h(o.dept)} · ${o.avancement} %</div></td><td>${h(o.bloc)}</td><td>${o.type}</td><td>${o.phase}</td>
+      <td onclick="event.stopPropagation()"><input value="${h(o.version)}" size="4" data-set="version" data-id="${o.id}"><div class="muted">${fmt(o.dateVersion)}</div></td>
+      <td onclick="event.stopPropagation()"><select data-set="statut" data-id="${o.id}">${opt(STATUTS, o.statut)}</select></td>
+      <td>${pill(o.v1, v1c[o.v1])}</td><td>${fmt(o.maj)}</td><td>${h(o.responsable)}</td>
+      <td onclick="event.stopPropagation()"><input type="date" value="${o.echeance}" data-set="echeance" data-id="${o.id}"><div class="muted">${h(o.echeanceLib)}</div></td>
+      <td>${pill(a.t.length > 38 ? a.t.slice(0, 36) + "…" : a.t, a.c)}</td></tr>`;
+  }).join("") || `<tr><td colspan="11" class="muted">Aucune opération pour ces filtres.</td></tr>`;
+
+  const J = S.lots[CFG.lot].jalons.slice().sort((a, b) => a.date.localeCompare(b.date));
+  const jal = J.map(j => `<tr><td>${fmt(j.date)}</td><td>${h(j.lib)}<div class="muted">${h(j.type)}</div></td><td>${h(j.pilote)}</td>
+    <td><select data-jset="statut" data-id="${j.id}">${opt(Object.keys(JAL_COL), j.statut)}</select> ${pill("●", JAL_COL[j.statut])}</td>
+    <td><button class="sm" data-act="jlink" data-id="${j.id}">Ouvrir ↗</button> <button class="sm" data-act="jedit" data-id="${j.id}">✎</button></td></tr>`).join("");
+
+  return `
+  <div class="grid g4">
+    ${kpiCard("Conformité V1", k.v1, S.obj.v1, "plannings acceptés sans reprise / plannings remis", "≥ " + S.obj.v1 + " %")}
+    ${kpiCard("Respect des délais", k.delais, S.obj.delais, "livrables remis à temps / livrables échus", S.obj.delais + " %")}
+    ${kpiCard("Conformité des livrables", k.conf, S.obj.conformite, "livrables conformes / livrables contrôlés", "≥ " + S.obj.conformite + " %")}
+    <div class="card kpi"><div class="muted">Opérations</div><div class="v">${L.ops.length}</div>
+      <div class="s">${L.ops.filter(o => o.statut === "validé").length} validées · ${L.ops.filter(o => o.statut === "reprise").length} en reprise · ${retards} en alerte rouge</div>
+      <div class="bar"><i class="bg-vert" style="width:${av}%"></i></div><div class="o">Avancement moyen simulé : ${av} %</div></div>
+  </div>
+
+  <div class="card"><h2>Synthèse de l'avancement des plannings – ${h(L.titre)}</h2>
+    <div class="filters">${sel("dept", "Tous départements", uniq("dept"))}${sel("phase", "Toutes phases", PHASES)}${sel("statut", "Tous statuts", STATUTS)}${sel("resp", "Tous responsables", uniq("responsable"))}
+      <button data-act="clearF">Effacer les filtres</button><span class="muted">${rows.length} / ${L.ops.length} opérations — cliquer sur une ligne pour ouvrir la fiche</span></div>
+    <div class="scroll"><table><thead><tr>${th("nom", "Opération")}${th("bloc", "Bloc / pôle")}${th("type", "Type")}${th("phase", "Phase")}${th("version", "Version / date")}${th("statut", "Statut")}${th("conf", "Conformité V1")}${th("maj", "Dernière MàJ")}${th("responsable", "Responsable")}${th("echeance", "Prochaine échéance")}${th("alerte", "Alerte / écart")}</tr></thead><tbody>${table}</tbody></table></div>
+    <div class="legend" style="margin-top:10px"><span class="vert">Conforme / validé</span><span class="orange">Vigilance / V1 remise</span><span class="rouge">Retard / reprise</span><span class="gris">À venir</span></div></div>
+
+  <div class="grid g2">
+    <div class="card"><h2>Répartition de charge par profil et par mois (ETP simulés)</h2>${chargeHtml()}</div>
+    <div class="card"><h2>Prochains jalons <button class="sm right" data-act="jadd">+ Jalon</button></h2>
+      <div class="scroll"><table><thead><tr><th>Date</th><th>Jalon</th><th>Pilote</th><th>Statut</th><th>Lien</th></tr></thead><tbody>${jal}</tbody></table></div>
+      <p class="muted">Le rapport d'étonnement est attendu dans les deux mois suivant la notification (${fmt(L.notification)}).</p></div>
+  </div>`;
+}
+
+function chargeHtml() {
+  const L = lot(), Y = S.year, profils = ["Direction", "Intégrateur", "OPC", "Planificateur"];
+  const months = [...Array(12)].map((_, i) => Y + "-" + String(i + 1).padStart(2, "0"));
+  const data = months.map(m => { const r = {}; profils.forEach(p => r[p] = 0); L.equipe.forEach(e => { if (e.actif && e.debut <= m && m <= e.fin) r[e.profil] += e.etp; }); r.tot = profils.reduce((a, p) => a + r[p], 0); return r; });
+  const max = Math.max(1, ...data.map(d => d.tot));
+  const bars = data.map((d, i) => `<div class="col"><span>${d.tot ? d.tot.toFixed(1).replace(".", ",") : "0"}</span><div class="stk" style="height:${d.tot / max * 140}px">${profils.map(p => `<div class="p-${p}" style="height:${d[p] / d.tot * 100 || 0}%" title="${p} : ${d[p].toFixed(1).replace(".", ",")} ETP"></div>`).join("")}</div><span>${MOIS[i]}</span></div>`).join("");
+  const team = L.equipe.map(e => `<tr class="${e.actif ? "" : "dis"}"><td><input type="checkbox" data-eset="actif" data-id="${e.id}"${e.actif ? " checked" : ""}></td><td><span class="pill p-${e.profil}">${e.profil}</span></td><td>${h(e.lib)}<div class="muted">${h(e.perim)} · ${MOIS[+e.debut.slice(5) - 1]} ${e.debut.slice(0, 4)} → ${MOIS[+e.fin.slice(5) - 1]} ${e.fin.slice(0, 4)}</div></td><td><input type="number" step="0.1" min="0" max="2" value="${e.etp}" style="width:70px" data-eset="etp" data-id="${e.id}"></td></tr>`).join("");
+  return `<div class="filters"><label>Année <select data-ui="year">${[2026, 2027, 2028, 2029].map(y => `<option${y === Y ? " selected" : ""}>${y}</option>`).join("")}</select></label>
+    <span class="legend">${profils.map(p => `<span style="color:inherit"><i class="p-${p}" style="display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:4px"></i>${p}</span>`).join("")}</span></div>
+    <div class="chart">${bars}</div>
+    <details style="margin-top:10px"><summary><b>Équipe de mission test</b> – activer/désactiver un renfort, ajuster l'ETP</summary><div class="scroll"><table><tbody>${team}</tbody></table></div></details>`;
+}
+
+/* ======================= Vue : Suivi des opérations ======================= */
+function viewSuivi() {
+  const L = lot(), ui = S.ui = S.ui || {}, G = ui.g = ui.g || {};
+  const hid = location.hash.slice(1);
+  if (hid && L.ops.some(o => o.id === hid)) { S.sel[CFG.lot] = hid;   try { history.replaceState(null, "", location.href.split("#")[0]); } catch (e) {} }
+  const o = opById(S.sel[CFG.lot]) || L.ops[0];
+  const list = L.ops.filter(x => (!G.q || x.nom.toLowerCase().includes(G.q.toLowerCase())) && (!G.statut || x.statut === G.statut) && (!G.bloc || x.bloc === G.bloc));
+  const blocs = [...new Set(L.ops.map(x => x.bloc))];
+  const left = `<div class="card"><h2>Opérations (${list.length})</h2>
+    <div class="filters"><input type="search" placeholder="Rechercher…" value="${h(G.q || "")}" data-ui2="q" style="flex:1;min-width:120px">
+    <select data-ui2="statut"><option value="">Statuts</option>${STATUTS.map(s => `<option${G.statut === s ? " selected" : ""}>${s}</option>`).join("")}</select>
+    <select data-ui2="bloc"><option value="">Blocs/pôles</option>${blocs.map(s => `<option${G.bloc === s ? " selected" : ""}>${h(s)}</option>`).join("")}</select></div>
+    <div class="ops">${list.map(x => { const a = alerte(x); return `<div class="op ${x.id === o.id ? "sel" : ""}" data-act="select" data-id="${x.id}"><b>${h(x.nom)}</b><div class="muted">${h(x.bloc)} · ${x.phase} · type ${x.type}</div>
+      ${pill(x.statut, STATUT_COL[x.statut])} ${pill(a.c === "vert" ? "RAS" : a.c === "gris" ? "À venir" : "!", a.c)}<div class="bar"><i class="bg-${STATUT_COL[x.statut]}" style="width:${x.avancement}%"></i></div></div>`; }).join("") || "<p class='muted'>Aucun résultat.</p>"}</div></div>`;
+  return `<div class="split">${left}<div>${fiche(o)}</div></div>`;
+}
+
+function fiche(o) {
+  const a = alerte(o), id = o.id;
+  const inp = (f, label, type, extra) => `<label>${label}<input type="${type || "text"}" value="${h(o[f])}" data-set="${f}" data-id="${id}" ${extra || ""}></label>`;
+  const sel = (f, label, list) => `<label>${label}<select data-set="${f}" data-id="${id}">${opt(list, o[f])}</select></label>`;
+  const num = (f, label) => `<label>${label}<input type="number" min="0" value="${o.livr[f]}" data-set="livr.${f}" data-id="${id}"></label>`;
+  const k = kpis([o]);
+  const prioC = { Haute: "rouge", Moyenne: "orange", Basse: "gris" };
+  const act = o.actions.map(x => { const late = x.statut !== "clôturée" && x.ech < S.ref; return `<tr class="${x.statut === "clôturée" ? "dis" : ""}"><td>${h(x.desc)}</td><td>${h(x.resp)}</td><td class="${late ? "rouge" : ""}">${fmt(x.ech)}${late ? " ⚠" : ""}</td><td>${pill(x.prio, prioC[x.prio])}</td><td>${x.statut}</td>
+    <td style="white-space:nowrap"><button class="sm" data-act="aedit" data-id="${x.id}">✎</button> <button class="sm" data-act="aclose" data-id="${x.id}">${x.statut === "clôturée" ? "Rouvrir" : "Clôturer"}</button> <button class="sm" data-act="adel" data-id="${x.id}">✕</button></td></tr>`; }).join("");
+  const ecr = o.ecarts.map(x => `<tr><td>${h(x.lib)}</td><td>${fmt(x.prevu)} → ${fmt(x.realise)}</td><td>${h(x.cause)}</td><td>${h(x.impact)}</td><td>${h(x.decision)}</td><td>${pill(x.statut, x.statut === "ouvert" ? "rouge" : "vert")}</td>
+    <td style="white-space:nowrap"><button class="sm" data-act="eedit" data-id="${x.id}">✎</button> <button class="sm" data-act="edel" data-id="${x.id}">✕</button></td></tr>`).join("");
+  const jal = o.jalons.slice().sort((p, q) => p.date.localeCompare(q.date)).map(j => { const c = j.fait ? "vert" : j.date < S.ref ? "rouge" : days(S.ref, j.date) <= 14 ? "orange" : "gris"; return `<tr><td><input type="checkbox" data-jk="fait" data-id="${j.id}"${j.fait ? " checked" : ""}></td><td>${h(j.lib)}</td><td>${fmt(j.date)}</td><td>${pill(j.fait ? "fait" : c === "rouge" ? "en retard" : "à venir", c)}</td><td><button class="sm" data-act="kedit" data-id="${j.id}">✎</button> <button class="sm" data-act="kdel" data-id="${j.id}">✕</button></td></tr>`; }).join("");
+  const reu = o.reunions.slice().sort((p, q) => q.date.localeCompare(p.date)).map(r => `<tr><td>${fmt(r.date)}</td><td>${h(r.titre)}</td><td>${r.cr ? `<a href="#" data-act="rlink" data-id="${r.id}">📄 ${h(r.cr)}</a>` : `<span class="muted">CR non reçu</span>`}</td><td>${r.crStatut}</td>
+    <td><button class="sm" data-act="redit" data-id="${r.id}">✎</button> <button class="sm" data-act="rdel" data-id="${r.id}">✕</button></td></tr>`).join("");
+  const itf = o.interfaces.map(x => `<tr><td>${h(x.org)}</td><td>${h(x.contact)}</td><td><button class="sm" data-act="iedit" data-id="${o.interfaces.indexOf(x)}">✎</button> <button class="sm" data-act="idel" data-id="${o.interfaces.indexOf(x)}">✕</button></td></tr>`).join("");
+  return `
+  <div class="card"><h2>${h(o.nom)} ${pill(o.statut, STATUT_COL[o.statut])} ${pill(a.t, a.c)}</h2>
+    <div class="muted">Département ${h(o.dept)} · ${h(o.bloc)} · phase ${o.phase} · planning ${o.type} · dernière mise à jour ${fmt(o.maj)}</div>
+    <div class="bar" style="height:12px"><i class="bg-${STATUT_COL[o.statut]}" style="width:${o.avancement}%"></i></div>
+    <div class="fields" style="margin-top:12px">
+      ${sel("phase", "Phase", PHASES)}${sel("type", "Type de planning", ["B", "C"])}${inp("version", "Version")}${inp("dateVersion", "Date de version", "date")}
+      ${sel("statut", "Statut", STATUTS)}
+      <label>Avancement : <output>${o.avancement}</output> %<input type="range" min="0" max="100" value="${o.avancement}" oninput="this.previousElementSibling.firstElementChild.textContent=this.value" data-set="avancement" data-id="${id}"></label>
+      ${inp("echeance", "Prochaine échéance", "date")}${inp("echeanceLib", "Libellé de l'échéance")}
+      <label>Responsable<input value="${h(o.responsable)}" list="dlResp" data-set="responsable" data-id="${id}"></label>
+      <label>OPC<input value="${h(o.opc)}" list="dlResp" data-set="opc" data-id="${id}"></label>
+      <label>Planificateur<input value="${h(o.planif)}" list="dlResp" data-set="planif" data-id="${id}"></label>
+      ${inp("moaCoord", "MOA coordinatrice")}${inp("moaContrib", "MOA contributrice (si applicable)")}${inp("dept", "Département")}${inp("bloc", "Bloc / pôle")}
+    </div></div>
+
+  <div class="grid g2">
+    <div class="card"><h2>Indicateurs de l'opération</h2>
+      <div class="fields">${sel("v1", "Conformité dès V1", V1S)}${num("echus", "Livrables échus")}${num("aTemps", "… remis à temps")}${num("controles", "Livrables contrôlés")}${num("conformes", "… conformes")}</div>
+      <p class="muted">Délais : ${o.livr.aTemps}/${o.livr.echus} (${fp(pct(o.livr.aTemps, o.livr.echus))}) · Conformité livrables : ${o.livr.conformes}/${o.livr.controles} (${fp(pct(o.livr.conformes, o.livr.controles))}) · V1 : ${o.v1}</p></div>
+    <div class="card"><h2>Jalons clés de la phase <button class="sm right" data-act="kadd">+ Jalon</button></h2><table><tbody>${jal || "<tr><td class='muted'>Aucun jalon</td></tr>"}</tbody></table></div>
+  </div>
+
+  <div class="card"><h2>Actions en attente <button class="sm right pri" data-act="aadd">+ Action</button></h2>
+    <div class="scroll"><table><thead><tr><th>Description</th><th>Responsable</th><th>Échéance</th><th>Priorité</th><th>Statut</th><th></th></tr></thead><tbody>${act || "<tr><td colspan=6 class='muted'>Aucune action</td></tr>"}</tbody></table></div></div>
+
+  <div class="card"><h2>Écarts (prévu / réalisé) <button class="sm right pri" data-act="eadd">+ Écart</button></h2>
+    <div class="scroll"><table><thead><tr><th>Écart</th><th>Prévu → réalisé</th><th>Cause</th><th>Impact</th><th>Décision / mitigation</th><th>Statut</th><th></th></tr></thead><tbody>${ecr || "<tr><td colspan=7 class='muted'>Aucun écart</td></tr>"}</tbody></table></div></div>
+
+  <div class="grid g2">
+    <div class="card"><h2>Réunions et documents <button class="sm right" data-act="radd">+ Réunion</button></h2><div class="scroll"><table><thead><tr><th>Date</th><th>Réunion</th><th>Compte rendu</th><th>Statut</th><th></th></tr></thead><tbody>${reu}</tbody></table></div></div>
+    <div class="card"><h2>Interfaces SNCF <button class="sm right" data-act="iadd">+ Interface</button></h2><table><thead><tr><th>Entité / projet</th><th>Interlocuteur</th><th></th></tr></thead><tbody>${itf}</tbody></table></div>
+  </div>
+  <div class="card"><h2>Historique de mise à jour</h2><div class="hist">${o.historique.map(x => `<div><b>${fmt(x.d)}</b> – ${h(x.t)}</div>`).join("")}</div></div>`;
+}
+
+/* ======================= Actions (clics) ======================= */
+const cur = () => opById(S.sel[CFG.lot]);
+const byId = (list, id) => list.find(x => x.id === id);
+function crud(listName, label, fields, mk) {
+  const A = {};
+  A[listName + "add"] = () => { form("Ajouter – " + label, fields(), r => { const o = cur(), n = Object.assign({ id: uid() }, mk(r)); o[listKey[listName]].push(n); o.maj = S.ref; hist(o, "Ajout " + label + " : " + (n.desc || n.lib || n.titre || n.org)); save(); render(); }); };
+  A[listName + "edit"] = d => { const o = cur(), it = byId(o[listKey[listName]], d.id); form("Modifier – " + label, fields(it), r => { Object.assign(it, mk(r)); o.maj = S.ref; hist(o, "Modification " + label + " : " + (it.desc || it.lib || it.titre)); save(); render(); }); };
+  A[listName + "del"] = d => { const o = cur(), l = o[listKey[listName]]; const i = l.findIndex(x => x.id === d.id); if (i >= 0 && confirm("Supprimer cet élément ?")) { hist(o, "Suppression " + label); l.splice(i, 1); save(); render(); } };
+  return A;
+}
+const listKey = { a: "actions", e: "ecarts", k: "jalons", r: "reunions" };
+const respList = () => [...new Set(lot().ops.flatMap(x => [x.opc, x.planif]))];
+const ACTIONS = Object.assign({},
+  crud("a", "action", it => [{ k: "desc", l: "Description", t: "area", v: it && it.desc }, { k: "resp", l: "Responsable", v: it ? it.resp : cur().responsable, list: "dlResp" }, { k: "ech", l: "Échéance", t: "date", v: it ? it.ech : S.ref }, { k: "prio", l: "Priorité", t: "select", o: ["Haute", "Moyenne", "Basse"], v: it ? it.prio : "Moyenne" }, { k: "statut", l: "Statut", t: "select", o: ["ouverte", "en cours", "clôturée"], v: it ? it.statut : "ouverte" }], r => r),
+  crud("e", "écart", it => [{ k: "lib", l: "Écart", v: it && it.lib }, { k: "prevu", l: "Date prévue", t: "date", v: it ? it.prevu : S.ref }, { k: "realise", l: "Date réalisée", t: "date", v: it ? it.realise : S.ref }, { k: "cause", l: "Cause", v: it && it.cause }, { k: "impact", l: "Impact", v: it && it.impact }, { k: "decision", l: "Décision / action de mitigation", t: "area", v: it && it.decision }, { k: "statut", l: "Statut", t: "select", o: ["ouvert", "traité"], v: it ? it.statut : "ouvert" }], r => r),
+  crud("k", "jalon", it => [{ k: "lib", l: "Jalon", v: it && it.lib }, { k: "date", l: "Date", t: "date", v: it ? it.date : S.ref }], r => ({ lib: r.lib, date: r.date, fait: false })),
+  crud("r", "réunion", it => [{ k: "titre", l: "Réunion", v: it && it.titre }, { k: "date", l: "Date", t: "date", v: it ? it.date : S.ref }, { k: "cr", l: "Fichier de compte rendu (fictif, optionnel)", v: it && it.cr }, { k: "crStatut", l: "Statut du CR", t: "select", o: ["attendu", "en relecture", "diffusé"], v: it ? it.crStatut : "attendu" }], r => r), {
+  aclose: d => { const o = cur(), a = byId(o.actions, d.id); a.statut = a.statut === "clôturée" ? "ouverte" : "clôturée"; o.maj = S.ref; hist(o, "Action « " + a.desc + " » : " + a.statut); save(); render(); toast("Action " + a.statut); },
+  rlink: d => { const r = byId(cur().reunions, d.id); fakeLink(r.cr); },
+  iadd: () => form("Ajouter une interface", [{ k: "org", l: "Entité / projet" }, { k: "contact", l: "Interlocuteur" }], r => { cur().interfaces.push(r); save(); render(); }),
+  iedit: d => { const it = cur().interfaces[+d.id]; form("Modifier l'interface", [{ k: "org", l: "Entité / projet", v: it.org }, { k: "contact", l: "Interlocuteur", v: it.contact }], r => { Object.assign(it, r); save(); render(); }); },
+  idel: d => { if (confirm("Supprimer cette interface ?")) { cur().interfaces.splice(+d.id, 1); save(); render(); } },
+  select: d => { S.sel[CFG.lot] = d.id; save(); render(); window.scrollTo(0, 0); },
+  open: d => { S.sel[CFG.lot] = d.id; save(); location.href = `lot${CFG.lot}-suivi.html#${d.id}`; },
+  sort: d => { const s = S.ui.sort || { k: "nom", d: 1 }; S.ui.sort = { k: d.k, d: s.k === d.k ? -s.d : 1 }; render(); },
+  clearF: () => { S.ui.f = {}; render(); },
+  jlink: d => { const j = byId(lot().jalons, d.id); fakeLink("Support : " + j.lib); },
+  jadd: () => form("Ajouter un jalon", [{ k: "lib", l: "Jalon" }, { k: "type", l: "Type", t: "select", o: ["Réunion de lancement", "Suivi planning", "Coordination LNPCA-HPMV", "Revue d'intégration", "COPIL", "Compte rendu", "Rapport d'étonnement", "Remise"] }, { k: "date", l: "Date", t: "date", v: S.ref }, { k: "pilote", l: "Pilote", list: "dlResp" }], r => { lot().jalons.push(Object.assign({ id: uid(), statut: "à venir" }, r)); save(); render(); }),
+  jedit: d => { const j = byId(lot().jalons, d.id); form("Modifier le jalon", [{ k: "lib", l: "Jalon", v: j.lib }, { k: "date", l: "Date", t: "date", v: j.date }, { k: "pilote", l: "Pilote", v: j.pilote }], r => { Object.assign(j, r); save(); render(); }); },
+  closeModal,
+  reset: () => { if (confirm("Réinitialiser toutes les données de démonstration (les deux lots) ?")) { try { localStorage.removeItem(KEY); } catch (e) {} window.name = ""; S = buildInitial(); S.ui = {}; save(); render(); toast("Données de démonstration réinitialisées"); } }
+  });
+
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-act]"); if (!t) return;
+  if (t.tagName === "A") e.preventDefault();
+  const f = ACTIONS[t.dataset.act]; if (f) f(t.dataset);
+});
+document.addEventListener("change", e => {
+  const t = e.target, d = t.dataset;
+  if (d.set) setField(d.id, d.set, t.value);
+  else if (d.ui) { if (d.ui === "year") S.year = +t.value; else (S.ui.f = S.ui.f || {})[d.ui] = t.value; save(); render(); }
+  else if (d.ui2) { (S.ui.g = S.ui.g || {})[d.ui2] = t.value; render(); const q = document.querySelector("[data-ui2=q]"); if (d.ui2 === "q") { q.focus(); q.setSelectionRange(99, 99); } }
+  else if (d.jset) { byId(lot().jalons, d.id)[d.jset] = t.value; save(); render(); }
+  else if (d.jk) { const o = cur(), j = byId(o.jalons, d.id); j.fait = t.checked; o.maj = S.ref; hist(o, "Jalon « " + j.lib + " » : " + (j.fait ? "fait" : "à faire")); save(); render(); }
+  else if (d.eset) { const m = byId(lot().equipe, d.id); m[d.eset] = d.eset === "actif" ? t.checked : Math.max(0, Number(t.value) || 0); save(); render(); }
+  else if (t.id === "refDate" && t.value) { S.ref = t.value; save(); render(); toast("Date d'actualisation fictive : " + fmt(S.ref)); }
+});
+document.addEventListener("input", e => { const d = e.target.dataset; if (d.ui2 === "q") { clearTimeout(window._q); window._q = setTimeout(() => e.target.dispatchEvent(new Event("change", { bubbles: true })), 250); } });
+
+/* ======================= Rendu ======================= */
+function render() {
+  renderNav();
+  const resp = [...new Set(lot().ops.flatMap(x => [x.opc, x.planif, x.responsable]).concat(lot().equipe.map(e => e.lib)))];
+  document.getElementById("app").innerHTML = (CFG.vue === "synthese" ? viewSynthese() : viewSuivi()) +
+    `<datalist id="dlResp">${resp.map(r => `<option value="${h(r)}">`).join("")}</datalist>`;
+}
+loadState(); S.ui = S.ui || {}; render();
+</script>
+</body>
+</html>
